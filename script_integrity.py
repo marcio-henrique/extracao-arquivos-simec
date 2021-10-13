@@ -21,17 +21,22 @@ df = pd.read_csv(
     )
 	
 for index, row in df.iterrows():
-    if (row['Formato'] in ['Digital', 'Audiovisual']):
+    if (row['Formato'] in ['Digital', 'Audiovisual'] and type(row['md5 local']) is not str):
         if (type(row['id_zip']) is str):
-            #print('rowz')
-            rows_zip = zipado[zipado['id'] == row['id']]
-            #print(rows_zip)
-            for i_zip, r_zip in rows_zip.iterrows():
-                if (r_zip['Nome do Arquivo'] != row['Nome do Arquivo']):
-                    continue
-                    
-                print(r_zip['Nome do Arquivo'] + ' - ' + row['Nome do Arquivo'])
-                df.at[index, 'Caminho Local'] = r_zip['Caminho Local']
-                print (df.at[index, 'Caminho Local'])
-                print('OK')
-                
+            file_path = '../../' + row['Edital'] + '/zip/' + row['id'] + '/' + row['Caminho Local']
+            print(row['id'] + ' - ' + row['id_zip'])
+        elif (math.isnan(row['id_zip'])):
+            file_path = 'arquivos/' + row['Edital'] + '/' + row['id'] + '/' + row['Nome do Arquivo']
+            print(row['id'])
+        else:
+            print('opaa')
+            continue
+        
+        try:
+            md5 = generate_file_md5(file_path)
+            df.at[index, 'md5 local'] = md5
+            print(md5)
+            print('OK')
+        except Exception as e:
+            print(e)
+            break
